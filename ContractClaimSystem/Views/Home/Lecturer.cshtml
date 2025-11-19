@@ -1,0 +1,280 @@
+﻿@model List<ContractClaimSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Lecturer Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">
+                        <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>Lecturer Dashboard
+                    </h2>
+                    <p class="text-muted">Manage your monthly claims and track their status</p>
+                </div>
+                <button class="btn btn-lecturer btn-role" data-bs-toggle="modal" data-bs-target="#newClaimModal">
+                    <i class="fas fa-plus me-2"></i>Submit New Claim
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-primary">@Model.Count</div>
+                <div class="stat-label">Total Claims</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-success">@Model.Count(c => c.Status == ContractClaimSystem.Models.ClaimStatus.Approved)</div>
+                <div class="stat-label">Approved</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-warning">@Model.Count(c => c.Status == ContractClaimSystem.Models.ClaimStatus.Pending)</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-info">@Model.Count(c => c.Status == ContractClaimSystem.Models.ClaimStatus.UnderReview)</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claims Table -->
+    <div class="claims-table">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-calendar me-2"></i>Claim Month</th>
+                        <th><i class="fas fa-dollar-sign me-2"></i>Amount</th>
+                        <th><i class="fas fa-file-alt me-2"></i>Description</th>
+                        <th><i class="fas fa-tag me-2"></i>Status</th>
+                        <th><i class="fas fa-calendar-plus me-2"></i>Submitted</th>
+                        <th><i class="fas fa-cog me-2"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@claim.ClaimMonth.ToString("MMM yyyy")</td>
+                            <td class="fw-bold text-success">@claim.Amount.ToString("C")</td>
+                            <td>
+                                <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                                      data-bs-toggle="tooltip" title="@claim.Description">
+                                    @claim.Description
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-@claim.Status.ToString().ToLower()">
+                                    <i class="fas @GetStatusIcon(claim.Status) me-1"></i>@claim.Status
+                                </span>
+                            </td>
+                            <td>@claim.SubmittedDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="btn-group">
+                                    @if (!string.IsNullOrEmpty(claim.DocumentPath))
+                                    {
+                                        <a href="/documents/@claim.DocumentPath"
+                                           class="btn btn-sm btn-outline-primary btn-action"
+                                           target="_blank"
+                                           data-bs-toggle="tooltip"
+                                           title="Download Document">
+                                            <i class="fas fa-file-download"></i>
+                                        </a>
+                                    }
+                                    <button class="btn btn-sm btn-outline-info btn-action"
+                                            data-bs-toggle="tooltip"
+                                            title="View Details"
+                                            onclick="showClaimDetails(@claim.Id, '@claim.LecturerName', '@claim.ClaimMonth.ToString("MMM yyyy")', '@claim.Amount', '@claim.Description', '@claim.Status', '@claim.SubmittedDate.ToString("MMM dd, yyyy")')">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Claims Submitted</h4>
+            <p class="text-muted mb-4">You haven't submitted any claims yet. Get started by submitting your first claim.</p>
+            <button class="btn btn-lecturer btn-role" data-bs-toggle="modal" data-bs-target="#newClaimModal">
+                <i class="fas fa-plus me-2"></i>Submit Your First Claim
+            </button>
+        </div>
+    }
+</div>
+
+<!-- New Claim Modal -->
+<div class="modal fade" id="newClaimModal" tabindex="-1" aria-labelledby="newClaimModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white" id="newClaimModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>Submit New Claim
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-controller="Claims" asp-action="Create" method="post" enctype="multipart/form-data" id="claimForm">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Your Full Name *</label>
+                            <input type="text" class="form-control" name="LecturerName" required
+                                   placeholder="Enter your full name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Email Address *</label>
+                            <input type="email" class="form-control" name="LecturerEmail" required
+                                   placeholder="Enter your email address">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Claim Month *</label>
+                            <input type="month" class="form-control" name="ClaimMonth" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Amount (USD) *</label>
+                            <input type="number" step="0.01" class="form-control" name="Amount" required
+                                   placeholder="0.00" min="0">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description *</label>
+                        <textarea class="form-control" name="Description" rows="4" required
+                                  placeholder="Provide a detailed description of the claim..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Supporting Document</label>
+                        <input type="file" class="form-control" name="document"
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        <div class="form-text">Upload supporting documents (PDF, Word, or images up to 10MB)</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-action" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-lecturer btn-action">
+                        <i class="fas fa-paper-plane me-2"></i>Submit Claim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Claim Details Modal -->
+<div class="modal fade" id="claimDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-white">Claim Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="claimDetailsContent">
+                <!-- Details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    // Helper function to get status icons
+    public string GetStatusIcon(ContractClaimSystem.Models.ClaimStatus status)
+    {
+        return status switch
+        {
+            ContractClaimSystem.Models.ClaimStatus.Pending => "fa-clock",
+            ContractClaimSystem.Models.ClaimStatus.UnderReview => "fa-search",
+            ContractClaimSystem.Models.ClaimStatus.Approved => "fa-check-circle",
+            ContractClaimSystem.Models.ClaimStatus.Rejected => "fa-times-circle",
+            _ => "fa-question-circle"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        // Show claim details in modal
+        function showClaimDetails(id, name, month, amount, description, status, submittedDate) {
+            const detailsContent = `
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <strong>Lecturer Name:</strong><br>
+                        <span>${name}</span>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <strong>Claim Month:</strong><br>
+                        <span>${month}</span>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <strong>Amount:</strong><br>
+                        <span class="text-success fw-bold">${amount}</span>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <strong>Status:</strong><br>
+                        <span class="status-badge status-${status.toLowerCase()}">
+                            <i class="fas ${getStatusIcon(status)} me-1"></i>${status}
+                        </span>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <strong>Description:</strong><br>
+                        <span>${description}</span>
+                    </div>
+                    <div class="col-12">
+                        <strong>Submitted Date:</strong><br>
+                        <span>${submittedDate}</span>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('claimDetailsContent').innerHTML = detailsContent;
+            new bootstrap.Modal(document.getElementById('claimDetailsModal')).show();
+        }
+
+        function getStatusIcon(status) {
+            const icons = {
+                'Pending': 'fa-clock',
+                'UnderReview': 'fa-search',
+                'Approved': 'fa-check-circle',
+                'Rejected': 'fa-times-circle'
+            };
+            return icons[status] || 'fa-question-circle';
+        }
+
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const claimForm = document.getElementById('claimForm');
+            if (claimForm) {
+                claimForm.addEventListener('submit', function(e) {
+                    const amountInput = document.querySelector('input[name="Amount"]');
+                    if (amountInput && parseFloat(amountInput.value) <= 0) {
+                        e.preventDefault();
+                        alert('Please enter a valid amount greater than 0.');
+                        amountInput.focus();
+                    }
+                });
+            }
+        });
+    </script>
+}

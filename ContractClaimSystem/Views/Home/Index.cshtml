@@ -1,0 +1,135 @@
+﻿@{
+    ViewData["Title"] = "Contract Monthly Claim System";
+}
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">Contract Monthly Claim System</h1>
+        <p class="lead mb-4 opacity-90">Select your role to access the system and manage monthly claims efficiently</p>
+    </div>
+</div>
+
+<!-- Role Selection -->
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <h2 class="fw-bold text-dark mb-3">Select Your Role</h2>
+        <p class="text-muted">Choose your role to access the appropriate dashboard and features</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Lecturer Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="role-card lecturer h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="role-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h3 class="card-title fw-bold mb-3">Lecturer</h3>
+                    <p class="card-text text-muted mb-4">
+                        Submit monthly claims and track your claim status with real-time updates
+                    </p>
+
+                    <ul class="feature-list text-start mb-4">
+                        <li><i class="fas fa-paper-plane text-primary"></i> Submit claims easily</li>
+                        <li><i class="fas fa-file-upload text-primary"></i> Upload supporting documents</li>
+                        <li><i class="fas fa-chart-line text-primary"></i> Track claim status in real-time</li>
+                        <li><i class="fas fa-history text-primary"></i> View claim history</li>
+                    </ul>
+
+                    <a href="/Home/Lecturer" class="btn btn-role btn-lecturer w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Access Lecturer Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Programme Coordinator Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="role-card coordinator h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="role-icon">
+                        <i class="fas fa-user-tie"></i>
+                    </div>
+                    <h3 class="card-title fw-bold mb-3">Programme Coordinator</h3>
+                    <p class="card-text text-muted mb-4">
+                        Review and verify submitted claims with comprehensive oversight tools
+                    </p>
+
+                    <ul class="feature-list text-start mb-4">
+                        <li><i class="fas fa-search text-warning"></i> Review submitted claims</li>
+                        <li><i class="fas fa-check-circle text-warning"></i> Approve or reject claims</li>
+                        <li><i class="fas fa-chart-bar text-warning"></i> Monitor submission trends</li>
+                        <li><i class="fas fa-comments text-warning"></i> Provide feedback</li>
+                    </ul>
+
+                    <a href="/Home/Coordinator" class="btn btn-role btn-coordinator w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Access Coordinator Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Manager Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="role-card manager h-100">
+                <div class="card-body p-4 text-center">
+                    <div class="role-icon">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <h3 class="card-title fw-bold mb-3">Academic Manager</h3>
+                    <p class="card-text text-muted mb-4">
+                        Final approval and comprehensive system oversight with advanced reporting
+                    </p>
+
+                    <ul class="feature-list text-start mb-4">
+                        <li><i class="fas fa-gavel text-success"></i> Final approval authority</li>
+                        <li><i class="fas fa-chart-pie text-success"></i> System analytics & reports</li>
+                        <li><i class="fas fa-eye text-success"></i> Complete system oversight</li>
+                        <li><i class="fas fa-cog text-success"></i> System configuration</li>
+                    </ul>
+
+                    <a href="/Home/Manager" class="btn btn-role btn-manager w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Access Manager Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Features Section -->
+<div class="bg-light py-5 mt-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-shield-alt fa-2x text-primary mb-3"></i>
+                    <h4 class="fw-bold">Secure</h4>
+                    <p class="text-muted">Role-based access control ensures data security</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-bolt fa-2x text-warning mb-3"></i>
+                    <h4 class="fw-bold">Efficient</h4>
+                    <p class="text-muted">Streamlined workflow reduces processing time</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-chart-line fa-2x text-success mb-3"></i>
+                    <h4 class="fw-bold">Transparent</h4>
+                    <p class="text-muted">Real-time tracking and status updates</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-mobile-alt fa-2x text-info mb-3"></i>
+                    <h4 class="fw-bold">Responsive</h4>
+                    <p class="text-muted">Works perfectly on all devices</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

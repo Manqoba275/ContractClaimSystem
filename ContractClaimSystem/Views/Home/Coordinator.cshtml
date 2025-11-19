@@ -1,0 +1,233 @@
+﻿@model List<ContractClaimSystem.Models.Claim>
+@{
+    ViewData["Title"] = "Coordinator Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">
+                        <i class="fas fa-user-tie me-2 text-warning"></i>Programme Coordinator Dashboard
+                    </h2>
+                    <p class="text-muted">Review and verify submitted claims from lecturers</p>
+                </div>
+                <div class="text-end">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-warning btn-action" onclick="exportToExcel()">
+                            <i class="fas fa-download me-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-primary">@Model.Count</div>
+                <div class="stat-label">Total Claims</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-warning">@Model.Count(c => c.Status == ContractClaimSystem.Models.ClaimStatus.Pending)</div>
+                <div class="stat-label">Pending Review</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-info">@Model.Count(c => c.Status == ContractClaimSystem.Models.ClaimStatus.UnderReview)</div>
+                <div class="stat-label">Under Review</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-number text-success">@Model.Count(c => c.Status == ContractClaimSystem.Models.ClaimStatus.Approved)</div>
+                <div class="stat-label">Approved</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claims Table -->
+    <div class="claims-table">
+        <div class="table-responsive">
+            <table class="table table-hover" id="claimsTable">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-user me-2"></i>Lecturer</th>
+                        <th><i class="fas fa-calendar me-2"></i>Month</th>
+                        <th><i class="fas fa-dollar-sign me-2"></i>Amount</th>
+                        <th><i class="fas fa-file-alt me-2"></i>Description</th>
+                        <th><i class="fas fa-tag me-2"></i>Status</th>
+                        <th><i class="fas fa-calendar-plus me-2"></i>Submitted</th>
+                        <th><i class="fas fa-cog me-2"></i>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                         style="width: 40px; height: 40px; font-size: 0.9rem;">
+                                        @GetInitials(claim.LecturerName)
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">@claim.LecturerName</div>
+                                        <small class="text-muted">@claim.LecturerEmail</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="fw-semibold">@claim.ClaimMonth.ToString("MMM yyyy")</td>
+                            <td class="fw-bold text-success">@claim.Amount.ToString("C")</td>
+                            <td>
+                                <span class="d-inline-block text-truncate" style="max-width: 200px;"
+                                      data-bs-toggle="tooltip" title="@claim.Description">
+                                    @claim.Description
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-@claim.Status.ToString().ToLower()">
+                                    <i class="fas @GetStatusIcon(claim.Status) me-1"></i>@claim.Status
+                                </span>
+                            </td>
+                            <td>@claim.SubmittedDate.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="btn-group">
+                                    @if (claim.Status == ContractClaimSystem.Models.ClaimStatus.Pending)
+                                    {
+                                        <form asp-controller="Claims" asp-action="UpdateStatus" method="post" class="d-inline">
+                                            <input type="hidden" name="id" value="@claim.Id" />
+                                            <input type="hidden" name="status" value="@ContractClaimSystem.Models.ClaimStatus.UnderReview" />
+                                            <button type="submit" class="btn btn-sm btn-warning btn-action"
+                                                    data-bs-toggle="tooltip" title="Start Review">
+                                                <i class="fas fa-search me-1"></i>Review
+                                            </button>
+                                        </form>
+                                    }
+                                    else if (claim.Status == ContractClaimSystem.Models.ClaimStatus.UnderReview)
+                                    {
+                                        <div class="btn-group">
+                                            <form asp-controller="Claims" asp-action="UpdateStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@claim.Id" />
+                                                <input type="hidden" name="status" value="@ContractClaimSystem.Models.ClaimStatus.Approved" />
+                                                <button type="submit" class="btn btn-sm btn-success btn-action me-1"
+                                                        data-bs-toggle="tooltip" title="Approve Claim">
+                                                    <i class="fas fa-check me-1"></i>Approve
+                                                </button>
+                                            </form>
+                                            <form asp-controller="Claims" asp-action="UpdateStatus" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@claim.Id" />
+                                                <input type="hidden" name="status" value="@ContractClaimSystem.Models.ClaimStatus.Rejected" />
+                                                <button type="submit" class="btn btn-sm btn-danger btn-action"
+                                                        data-bs-toggle="tooltip" title="Reject Claim">
+                                                    <i class="fas fa-times me-1"></i>Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">No actions available</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No Claims Available</h4>
+            <p class="text-muted">There are no claims submitted by lecturers yet.</p>
+        </div>
+    }
+</div>
+
+@functions {
+    // Helper function to get status icons
+    public string GetStatusIcon(ContractClaimSystem.Models.ClaimStatus status)
+    {
+        return status switch
+        {
+            ContractClaimSystem.Models.ClaimStatus.Pending => "fa-clock",
+            ContractClaimSystem.Models.ClaimStatus.UnderReview => "fa-search",
+            ContractClaimSystem.Models.ClaimStatus.Approved => "fa-check-circle",
+            ContractClaimSystem.Models.ClaimStatus.Rejected => "fa-times-circle",
+            _ => "fa-question-circle"
+        };
+    }
+
+    // Helper function to get initials for avatar
+    public string GetInitials(string fullName)
+    {
+        if (string.IsNullOrEmpty(fullName))
+            return "??";
+
+        var names = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (names.Length >= 2)
+            return $"{names[0][0]}{names[1][0]}".ToUpper();
+        else if (names.Length == 1 && names[0].Length >= 2)
+            return names[0].Substring(0, 2).ToUpper();
+        else
+            return "??";
+    }
+}
+
+@section Scripts {
+    <script>
+        // Export to Excel functionality
+        function exportToExcel() {
+            const table = document.getElementById('claimsTable');
+            let csv = [];
+
+            // Add headers
+            const headers = [];
+            for (let i = 0; i < table.rows[0].cells.length - 1; i++) {
+                headers.push(table.rows[0].cells[i].textContent.trim());
+            }
+            csv.push(headers.join(','));
+
+            // Add rows
+            for (let i = 1; i < table.rows.length; i++) {
+                const row = [];
+                const cells = table.rows[i].cells;
+                for (let j = 0; j < cells.length - 1; j++) {
+                    let text = cells[j].textContent.trim();
+                    text = text.replace(/\s+/g, ' ').replace(/,/g, ';');
+                    row.push(text);
+                }
+                csv.push(row.join(','));
+            }
+
+            // Download CSV file
+            const csvContent = "data:text/csv;charset=utf-8," + csv.join('\n');
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "claims_export.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Auto-refresh page every 30 seconds to get updated status
+        setInterval(function() {
+            if (!document.querySelector('.modal.show')) {
+                location.reload();
+            }
+        }, 30000);
+    </script>
+}
